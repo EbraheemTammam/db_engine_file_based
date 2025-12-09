@@ -31,5 +31,5 @@ export const KEYWORDS: string[] = [
 
 export interface Token {
     type: TokenType,
-    value: string | number | boolean
+    value?: string | number | boolean
 }
