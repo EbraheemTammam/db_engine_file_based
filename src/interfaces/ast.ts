@@ -29,3 +29,11 @@ export interface CreateTableStatement extends ASTNode {
     skip_if_exists: boolean,
     columns: CreateTableColumnStatement[]
 }
+
+export interface CreateIndexStatement extends ASTNode {
+    type: "CreateIndexStatement",
+    index_name: string,
+    table_name: string,
+    columns: string[],
+    skip_if_exists: boolean
+}
