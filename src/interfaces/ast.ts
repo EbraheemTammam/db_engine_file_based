@@ -5,6 +5,7 @@ export interface ASTNode {
 export interface CreateDatabaseStatement extends ASTNode {
     type: "CreateDatabaseStatement",
     database_name: string,
+    skip_if_exists: boolean,
     options?: {
         owner: string
     }
