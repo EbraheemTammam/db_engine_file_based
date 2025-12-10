@@ -1,4 +1,5 @@
 import { KEYWORDS } from "src/constants/keywords";
+import { TYPES } from "src/constants/types";
 import { Token, TokenType } from "src/interfaces/token";
 
 export class Lexer {
@@ -112,7 +113,7 @@ export class Lexer {
 
             // identity or keyword
             if (Lexer.is_alpha(char)) {
-                this._tokenize_identity_or_keyword();
+                this._tokenize_identity_or_keyword_or_type();
                 continue;
             }
 
@@ -159,7 +160,7 @@ export class Lexer {
                     ++this._cursor;
                     continue;
             }
-
+            console.error(`[${Date.now()}] lexer.ts:163 syntax error: unknown character '${char}' at char:${this._cursor + 1}`);
             throw Error(`syntax error: unknown character '${char}' at char:${this._cursor + 1}`);
         }
 
@@ -177,8 +178,10 @@ export class Lexer {
         let iterator: number = this._cursor + 1;
         while (this._buffer[iterator + 1] !== quote) {
             ++iterator;
-            if (iterator === this._buffer_size) // reaching end of input without closing quote
+            if (iterator === this._buffer_size) { // reaching end of input without closing quote
+                console.error(`[${Date.now()}] lexer.ts:163 syntax error: quote at char:${this._cursor + 1} had never closed`);
                 throw new Error(`syntax error: quote at char:${this._cursor + 1} had never closed`)
+            }
         };
         this._tokens.push(
             {
@@ -200,8 +203,10 @@ export class Lexer {
         ) ++iterator;
         if (this._buffer[iterator + 1] === '.') { // handling floating point
             ++iterator;
-            if (!Lexer.is_number(this._buffer[iterator + 1]))
+            if (!Lexer.is_number(this._buffer[iterator + 1])) {
+                console.error(`[${Date.now()}] lexer.ts:163 syntax error: unexpected '${this._buffer[iterator]}' at char:${iterator + 1}`);
                 throw new Error(`syntax error: unexpected '${this._buffer[iterator]}' at char:${iterator + 1}`)
+            }
             while (
                 iterator !== this._buffer_size &&
                 Lexer.is_number(this._buffer[iterator + 1])
@@ -216,7 +221,7 @@ export class Lexer {
         this._cursor = iterator + 1;
     }
 
-    private _tokenize_identity_or_keyword() : void {
+    private _tokenize_identity_or_keyword_or_type() : void {
         let iterator: number = this._cursor;
         while (
             iterator !== this._buffer_size && (
@@ -228,6 +233,8 @@ export class Lexer {
         let slice: string = this._buffer.slice(this._cursor, iterator + 1);
         if (KEYWORDS.includes(slice.toUpperCase()))
             this._tokens.push({'type': TokenType.KEYWORD, 'value': slice.toUpperCase()});
+        else if (TYPES.includes(slice.toUpperCase()))
+            this._tokens.push({'type': TokenType.TYPE, 'value': slice.toUpperCase()});
         else this._tokens.push({'type': TokenType.IDENTIFIER, 'value': slice});
         this._cursor = iterator + 1;
     }
