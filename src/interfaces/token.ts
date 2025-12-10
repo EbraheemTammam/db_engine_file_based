@@ -1,5 +1,6 @@
 export enum TokenType {
     KEYWORD,
+    TYPE,
     IDENTIFIER,
     NUMBER,
     STRING,

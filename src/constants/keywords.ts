@@ -58,14 +58,5 @@ export const KEYWORDS: string[] = [
     "CAST",
     "WITH",
     "OWNER",
-    "IF",
-    "SERIAL",
-    "INT", 
-    "VARCHAR", 
-    "TEXT", 
-    "TIMESTAMP", 
-    "UUID", 
-    "DECIMAL", 
-    "NUMERIC", 
-    "BOOLEAN"
+    "IF"
 ]
