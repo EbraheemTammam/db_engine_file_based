@@ -2,7 +2,22 @@ import { NotImplementedException } from "@nestjs/common";
 import { Token, TokenType } from "src/interfaces/token";
 import { Parser } from "src/interfaces/parser";
 import { ASTNode } from "../interfaces/ast";
-import { CreateDatabaseStatement, CreateIndexStatement, CreateStatement, CreateTableColumnStatement, CreateTableStatement } from "src/interfaces/ddl/create_statement_ast";
+import { 
+    CreateDatabaseStatement, 
+    CreateIndexStatement, 
+    CreateStatement, 
+    CreateTableColumnStatement, 
+    CreateTableStatement 
+} from "src/interfaces/ddl/create_statement_ast";
+import { 
+    AlterStatement, 
+    AlterTableAddColumnStatement, 
+    AlterTableAlterColumnDataTypeStatement, 
+    AlterTableAlterColumnDefaultValueStatement, 
+    AlterTableAlterColumnNotNullStatement, 
+    AlterTableDropColumnStatement, 
+    AlterTableRenameColumnStatement 
+} from "src/interfaces/ddl/alter_statement_ast";
 
 export class DDLParser implements Parser {
     private _lexemes: Token[];
@@ -94,7 +109,7 @@ export class DDLParser implements Parser {
                 let ctype: Token = this.consume(TokenType.TYPE);
                 if (typeof(ctype.value) !== "string") 
                     throw new Error(`syntax error: unexpected token ${iterator.value}, expected identifier`)
-                let [pk, not_null, unique, serial]: [boolean, boolean, boolean, boolean] = [false, false, false, false];
+                let [pk, not_null, unique]: [boolean, boolean, boolean] = [false, false, false];
                 let default_value: string | number | boolean | undefined;
                 let reference: string | undefined;
                 let column: CreateTableColumnStatement = {
@@ -125,7 +140,7 @@ export class DDLParser implements Parser {
                             default_value = this.consume().value;
                             break;
                         case 'REFERENCES':
-                            this.consume(TokenType.KEYWORD, 'REFERENCE');
+                            this.consume(TokenType.KEYWORD, 'REFERENCES');
                             reference = [
                                 this.consume(TokenType.IDENTIFIER).value, 
                                 this.consume(TokenType.OPEN_PARAN, '(').value,
@@ -142,7 +157,6 @@ export class DDLParser implements Parser {
                 column.constraints = {
                     default: default_value,
                     pk: pk,
-                    serial: serial,
                     unique: (unique || pk), 
                     not_null: not_null || pk,
                     reference: reference
@@ -201,10 +215,201 @@ export class DDLParser implements Parser {
         }
     }
 
-    private parse_alter() : ASTNode {
-        throw new NotImplementedException();
-    }
+    private parse_alter() : AlterStatement {
+        this.consume(TokenType.KEYWORD, 'ALTER');
+        let next: Token = this.peek();
+        switch (next.value) {
+            case "DATABASE":
+                return parse_alter_database();
+            case "TABLE":
+                return parse_alter_table();
+            case "INDEX":
+                return parse_alter_index();
+            default:
+                throw new Error(`syntax error: expected identifier, got '${next.value}'`);
+        }
 
+        function parse_alter_database() : AlterStatement {
+            throw new NotImplementedException();
+        }
+
+        function parse_alter_table() : AlterStatement {
+            this.consume(TokenType.KEYWORD, 'TABLE');
+            let table_name: Token = this.consume(TokenType.IDENTIFIER);
+            if (typeof(table_name.value) !== "string") {
+                throw new Error(`syntax error: unexpected token '${table_name.value}', expected identifer`);
+            }
+            let next: Token = this.peek();
+            switch (next.value) {
+                case 'ADD':
+                    return parse_alter_table_add_column(table_name);
+                case 'DROP':
+                    return parse_alter_table_drop_column(table_name);
+                case 'ALTER':
+                    return parse_alter_table_alter_column(table_name);
+                case 'RENAME':
+                    return parse_rename_table(table_name);
+                default:
+                    throw new Error(`syntax error: unexpected token '${next.value}', expected KEYWORD`);
+            }
+                
+            function parse_alter_table_add_column(table_name: Token) : AlterTableAddColumnStatement {
+                if (typeof(table_name.value) !== "string") {
+                    throw new Error(`syntax error: unexpected token '${table_name.value}', expected identifer`);
+                }
+                this.consume(TokenType.KEYWORD, 'ADD');
+                this.consume(TokenType.KEYWORD, 'COLUMN');
+                let col_name: Token = this.consume(TokenType.IDENTIFIER);
+                if (typeof(col_name.value) !== "string") 
+                    throw new Error(`syntax error: unexpected token ${col_name.value}, expected identifier`);
+                let ctype: Token = this.consume(TokenType.TYPE);
+                if (typeof(ctype.value) !== "string") 
+                    throw new Error(`syntax error: unexpected token ${ctype.value}, expected identifier`);
+                let [pk, not_null, unique]: [boolean, boolean, boolean] = [false, false, false];
+                let default_value: string | number | boolean | undefined;
+                let reference: string | undefined;
+                let column: AlterTableAddColumnStatement = {
+                    type: "AlterTableAddColumnStatement",
+                    name: table_name.value,
+                    column_name: col_name.value,
+                    data_type: ctype.value, 
+                }
+                let next: Token = this.peek();
+                while (next.type !== TokenType.SEMICOLON) {
+                    switch (next.value) {
+                        case 'PRIMARY':
+                            this.consume(TokenType.KEYWORD, 'PRIMARY');
+                            this.consume(TokenType.KEYWORD, 'KEY');
+                            pk = true;
+                            break;
+                        case 'NOT':
+                            this.consume(TokenType.KEYWORD, 'NOT');
+                            this.consume(TokenType.NULL);
+                            not_null = true;
+                            break;
+                        case 'UNIQUE':
+                            this.consume(TokenType.KEYWORD, 'UNIQUE');
+                            unique = true;
+                            break;
+                        case 'DEFAULT':
+                            this.consume(TokenType.KEYWORD, 'DEFAULT');
+                            default_value = this.consume().value;
+                            break;
+                        case 'REFERENCES':
+                            this.consume(TokenType.KEYWORD, 'REFERENCES');
+                            reference = [
+                                this.consume(TokenType.IDENTIFIER).value, 
+                                this.consume(TokenType.OPEN_PARAN, '(').value,
+                                this.consume(TokenType.IDENTIFIER).value,
+                                this.consume(TokenType.CLOSE_PARAN).value
+                            ].join('');
+                        default:
+                            throw new Error(`syntax error: unexpected token '${next.value}'`);
+                    }
+                }
+                next = this.consume();
+                column.constraints = {
+                    default: default_value,
+                    pk: pk,
+                    unique: (unique || pk), 
+                    not_null: not_null || pk,
+                    reference: reference
+                }
+                return column;
+            }
+
+            function parse_alter_table_drop_column(table_name: Token) : AlterTableDropColumnStatement {
+                if (typeof(table_name.value) !== "string") {
+                    throw new Error(`syntax error: unexpected token '${table_name.value}', expected identifer`);
+                }
+                this.consume(TokenType.KEYWORD, 'DROP');
+                this.consume(TokenType.KEYWORD, 'COLUMN');
+                return {
+                    type: "AlterTableDropColumnStatement",
+                    name: table_name.value,
+                    column_name: this.consume(TokenType.IDENTIFIER).value
+                }
+            }
+
+            function parse_alter_table_alter_column(table_name: Token) : AlterStatement {
+                this.consume(TokenType.KEYWORD, 'ALTER');
+                this.consume(TokenType.KEYWORD, 'COLUMN');
+                let col_name: Token = this.consume(TokenType.IDENTIFIER);
+                let behavior: Token = this.consume(TokenType.KEYWORD);
+                let next: Token = this.peek();
+                switch (behavior.value) {
+                    case 'SET':
+                        switch (next.value) {
+                            case 'DATATYPE':
+                                return parse_alter_table_alter_column_datatype(table_name, col_name);
+                            case 'DEFAULT':
+                                return parse_alter_table_alter_column_set_default_value(table_name, col_name);
+                            case 'NOT':
+                                return parse_alter_table_alter_column_set_not_null(table_name, col_name);
+                            default:
+                                throw new Error(`syntax error: unexpected token '${next.value}', expected KEYWORD`);
+                        }
+                    case 'DROP':
+                        switch (next.value) {
+                            case 'DEFAULT':
+                                return parse_alter_table_alter_column_drop_default_value(table_name, col_name);
+                            case 'NOT':
+                                return parse_alter_table_alter_column_drop_not_null(table_name, col_name);
+                            default:
+                                throw new Error(`syntax error: unexpected token '${next.value}', expected KEYWORD`);
+                        }
+                    default:
+                        throw new Error(`syntax error: unexpected token '${behavior.value}', expected KEYWORD`);
+                }
+
+                function parse_alter_table_alter_column_datatype(table_name: Token, col_name: Token) : AlterTableAlterColumnDataTypeStatement {
+                    throw new NotImplementedException();
+                }
+
+                function parse_alter_table_alter_column_set_default_value(table_name: Token, col_name: Token) : AlterTableAlterColumnDefaultValueStatement {
+                    throw new NotImplementedException();
+                }
+
+                function parse_alter_table_alter_column_set_not_null(table_name: Token, col_name:Token) : AlterTableAlterColumnNotNullStatement {
+                    throw new NotImplementedException();
+                }
+
+                function parse_alter_table_alter_column_drop_default_value(table_name: Token, col_name: Token) : AlterTableAlterColumnDefaultValueStatement {
+                    throw new NotImplementedException();
+                }
+
+                function parse_alter_table_alter_column_drop_not_null(table_name, col_name) : AlterTableAlterColumnNotNullStatement {
+                    throw new NotImplementedException();
+                }
+            }
+
+            function parse_rename_table(table_name: Token) : AlterTableRenameColumnStatement {
+                if (typeof(table_name.value) !== "string") {
+                    throw new Error(`syntax error: unexpected token '${table_name.value}', expected identifer`);
+                }
+                this.consume(TokenType.KEYWORD, 'RENAME');
+                this.consume(TokenType.KEYWORD, 'COLUMN');
+                let old_name: Token = this.consume(TokenType.IDENTIFIER);
+                if (typeof(old_name.value) !== "string") {
+                    throw new Error(`syntax error: unexpected token '${old_name.value}', expected identifer`);
+                }
+                let new_name: Token = this.consume(TokenType.IDENTIFIER);
+                if (typeof(new_name.value) !== "string") {
+                    throw new Error(`syntax error: unexpected token '${new_name.value}', expected identifer`);
+                }
+                return {
+                    type: "AlterTableRenameColumnStatement",
+                    name: table_name.value,
+                    column_old_name: old_name.value,
+                    column_new_name: new_name.value
+                }
+            }
+        }
+
+        function parse_alter_index() : AlterStatement {
+            throw new NotImplementedException();
+        }
+    }
 
     private peek() { return this._lexemes[this._cursor]; }
 
