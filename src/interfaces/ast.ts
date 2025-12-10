@@ -5,7 +5,7 @@ export interface ASTNode {
 export interface CreateDatabaseStatement extends ASTNode {
     type: "CreateDatabaseStatement",
     database_name: string,
-    options: {
+    options?: {
         owner: string
     }
 }
@@ -13,7 +13,7 @@ export interface CreateDatabaseStatement extends ASTNode {
 export interface CreateTableColumnStatement {
     name: string,
     type: string,
-    constraints: {
+    constraints?: {
         default?: string | number | boolean,
         pk: boolean,
         serial: boolean,
