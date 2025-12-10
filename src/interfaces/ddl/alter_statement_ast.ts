@@ -5,9 +5,9 @@ export interface AlterStatement extends ASTNode {
           "AlterTableAddConstraintStatement" | 
           "AlterTableDropColumnStatement" | 
           "AlterTableRenameColumnStatement" |
-          "AlterTableAlterColumnDataType" |
-          "AlterTableAlterColumnDefaultValue" |
-          "AlterTableAlterColumnNotNull",
+          "AlterTableAlterColumnDataTypeStatement" |
+          "AlterTableAlterColumnDefaultValueStatement" |
+          "AlterTableAlterColumnNotNullStatement",
     name: string
 }
 
@@ -40,17 +40,17 @@ export interface AlterTableAlterColumnStatement extends AlterStatement {
 }
 
 export interface AlterTableAlterColumnDataTypeStatement extends AlterTableAlterColumnStatement {
-    type: "AlterTableAlterColumnDataType",
+    type: "AlterTableAlterColumnDataTypeStatement",
     data_type: string
 }
 
 export interface AlterTableAlterColumnDefaultValueStatement extends AlterTableAlterColumnStatement {
-    type: "AlterTableAlterColumnDefaultValue",
+    type: "AlterTableAlterColumnDefaultValueStatement",
     set_or_drop: boolean,
     default_value?: string
 }
 
 export interface AlterTableAlterColumnNotNullStatement extends AlterStatement {
-    type: "AlterTableAlterColumnNotNull",
+    type: "AlterTableAlterColumnNotNullStatement",
     set_or_drop: boolean
 }
