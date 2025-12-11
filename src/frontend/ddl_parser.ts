@@ -20,6 +20,7 @@ import {
     RenameDatabaseStatement,
     RenameIndexStatement
 } from "src/interfaces/ddl/alter_statement_ast";
+import { DropDatabaseStatement, DropIndexStatement, DropStatement, DropTableStatement } from "src/interfaces/ddl/drop_statement_ast";
 
 export class DDLParser implements Parser {
     private _lexemes: Token[];
@@ -42,6 +43,8 @@ export class DDLParser implements Parser {
                 return this.parse_create();
             case 'ALTER':
                 return this.parse_alter();
+            case 'DROP':
+                return this.parse_drop();
             default:
                 throw new Error(`syntax error: unexpected token '${next.value}', expected a keyword`);
         }
@@ -470,6 +473,54 @@ export class DDLParser implements Parser {
                 type: "RenameIndexStatement",
                 name: idx_name.value,
                 new_name: new_name.value
+            }
+        }
+    }
+
+    private parse_drop() : DropStatement {
+        this.consume(TokenType.KEYWORD, 'DROP');
+        let next: Token = this.peek();
+        switch (next.value) {
+            case "DATABASE":
+                return parse_drop_database();
+            case "TABLE":
+                return parse_drop_table();
+            case "INDEX":
+                return parse_drop_index();
+            default:
+                throw new Error(`syntax error: expected identifier, got '${next.value}'`);
+        }
+
+        function parse_drop_database() : DropDatabaseStatement {
+            this.consume(TokenType.KEYWORD, 'DATABASE');
+            let name: Token = this.consume(TokenType.IDENTIFIER);
+            if (typeof(name.value) !== "string") 
+                throw new Error(`syntax error: expected identifier, got '${next.value}'`);
+            return {
+                type: "DropDatabaseStatement",
+                name: name.value
+            }
+        }
+
+        function parse_drop_table() : DropTableStatement {
+            this.consume(TokenType.KEYWORD, 'TABLE');
+            let name: Token = this.consume(TokenType.IDENTIFIER);
+            if (typeof(name.value) !== "string") 
+                throw new Error(`syntax error: expected identifier, got '${next.value}'`);
+            return {
+                type: "DropTableStatement",
+                name: name.value
+            }
+        }
+
+        function parse_drop_index() : DropIndexStatement {
+            this.consume(TokenType.KEYWORD, 'INDEX');
+            let name: Token = this.consume(TokenType.IDENTIFIER);
+            if (typeof(name.value) !== "string") 
+                throw new Error(`syntax error: expected identifier, got '${next.value}'`);
+            return {
+                type: "DropIndexStatement",
+                name: name.value
             }
         }
     }
