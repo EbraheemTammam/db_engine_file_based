@@ -2,7 +2,7 @@ import { ASTNode } from "../ast";
 
 export interface DropStatement extends ASTNode {
     type: "DropDatabaseStatement" | "DropTableStatement" | "DropIndexStatement",
-    name: string
+    objects: string[]
 }
 
 export interface DropDatabaseStatement extends DropStatement {
