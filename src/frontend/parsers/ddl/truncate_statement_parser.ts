@@ -5,12 +5,22 @@ import { Token, TokenType } from "src/interfaces/token";
 export class TruncateStatementParser extends Parser {
     public parse() : TruncateTableStatement {
         this.consume(TokenType.KEYWORD, 'TRUNCATE');
-        let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string") 
-            throw new Error(`syntax error: expected identifier, got '${table_name.value}'`);
+        this.consume(TokenType.KEYWORD, 'TABLE');
+        let tables: Token[] = new Array<Token>();
+        tables.push(this.consume(TokenType.IDENTIFIER));
+        if (typeof(tables[0].value) !== "string") 
+            throw new Error(`syntax error: expected identifier, got '${tables[0].value}'`);
+        while (![TokenType.EOF, TokenType.SEMICOLON].includes(this.peek().type)) {
+            this.consume(TokenType.COMMA);
+            tables.push(this.consume(TokenType.IDENTIFIER));
+        }
         return {
             type: "TruncateTableStatement",
-            name: table_name.value
+            tables: tables.map(t => {
+                if (typeof(t.value) !== "string") 
+                    throw new Error(`syntax error: expected identifier, got '${t.value}'`);
+                return t.value;
+            })
         }
     }
 }
