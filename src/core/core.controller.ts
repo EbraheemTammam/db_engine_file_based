@@ -12,7 +12,7 @@ export class CoreController {
     @Post('ddl')
     execute_ddl(@Body() buffer: string) {
         try {
-            return this._service.parse_ddl(this._service.lex(buffer));
+            return this._service.execute(buffer);
         }
         catch (e) {
             let now: Date = new Date();
@@ -29,7 +29,7 @@ export class CoreController {
     @Post('dml')
     execute_dml(@Body() buffer: string) {
         try {
-            return this._service.parse_ddl(this._service.lex(buffer));
+            return this._service.execute(buffer, "DML");
         }
         catch (e) {
             let now: Date = new Date();
