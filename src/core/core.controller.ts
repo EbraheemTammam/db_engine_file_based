@@ -1,5 +1,6 @@
 import { Body, Controller, Post} from '@nestjs/common';
 import { CoreService } from './core.service';
+import { error } from 'console';
 
 @Controller('execute')
 export class CoreController {
@@ -21,7 +22,8 @@ export class CoreController {
                 error_with_location.slice(0, error_with_location.indexOf('(')) +
                 error_with_location.slice(error_with_location.indexOf(')') + 1, error_with_location.indexOf(')')) 
             );
-            console.error(`[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${error_with_location}: ${e.message}`);
+            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] SyntaxError: ${e.message}`);
+            console.error(`\t\t\t\t${error_with_location}\x1b[0m`);
             return {'error': e.message}
         }
     }
@@ -38,7 +40,8 @@ export class CoreController {
                 error_with_location.slice(0, error_with_location.indexOf('(')) +
                 error_with_location.slice(error_with_location.indexOf(')') + 1, error_with_location.indexOf(')')) 
             );
-            console.error(`[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${error_with_location}: ${e.message}`);
+            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] SyntaxError: ${e.message}`);
+            console.error(`\t\t\t\t${error_with_location}\x1b[0m`);
             return {'error': e.message}
         }
     }
