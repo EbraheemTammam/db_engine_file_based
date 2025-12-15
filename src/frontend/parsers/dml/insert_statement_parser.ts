@@ -10,7 +10,7 @@ export class InsertStatementParser extends Parser {
         if (typeof(table_name.value) !== "string")
             throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
         let statement: InsertStatement = {
-            type: "InsertStatement",
+            type: "Insert",
             table: table_name.value,
             values: new Array<Array<value>>()
         }

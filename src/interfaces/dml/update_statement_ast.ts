@@ -7,7 +7,7 @@ export interface ColumnUpdate {
 }
 
 export interface UpdateStatement extends ASTNode {
-    type: "UpdateStatement",
+    type: "Update",
     table: string,
     updates: ColumnUpdate[],
     condition?: LogicalConditionStatement

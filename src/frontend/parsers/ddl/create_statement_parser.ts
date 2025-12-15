@@ -44,7 +44,7 @@ export class CreateStatementParser extends Parser {
             skip_if_exists = true;
         }
         let statement: CreateDatabaseStatement = {
-            type: 'CreateDatabaseStatement',
+            type: "CreateDatabase",
             name: identifier.value,
             skip_if_exists: skip_if_exists
         }
@@ -136,7 +136,7 @@ export class CreateStatementParser extends Parser {
             columns.push(column);
         }
         return {
-            type: "CreateTableStatement",
+            type: "CreateTable",
             name: table_name.value,
             skip_if_exists: skip_if_exists,
             columns: columns
@@ -178,7 +178,7 @@ export class CreateStatementParser extends Parser {
             else throw new SyntaxError(`unexpected token ${next.value}, expected ')'`);
         }
         return {
-            type: "CreateIndexStatement",
+            type: "CreateIndex",
             name: index_name.value,
             table_name: table_name.value,
             columns: cols,

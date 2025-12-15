@@ -2,7 +2,7 @@ import { ASTNode } from "../ast"
 import { LogicalConditionStatement } from "./logical_condition_ast"
 
 export interface SelectStatement extends ASTNode {
-    type: "SelectStatement",
+    type: "Select",
     table: string,
     columns: string[],
     distinct: boolean,

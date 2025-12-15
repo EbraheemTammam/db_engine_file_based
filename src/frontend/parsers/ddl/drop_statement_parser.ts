@@ -36,7 +36,7 @@ export class DropStatementParser extends Parser {
             dbs.push(this.consume(TokenType.IDENTIFIER));
         }
         return {
-            type: "DropDatabaseStatement",
+            type: "DropDatabase",
             objects: dbs.map(t => {
                 if (typeof(t.value) !== "string") 
                     throw new SyntaxError(`expected identifier, got '${t.value}'`);
@@ -56,7 +56,7 @@ export class DropStatementParser extends Parser {
             tables.push(this.consume(TokenType.IDENTIFIER));
         }
         return {
-            type: "DropTableStatement",
+            type: "DropTable",
             objects: tables.map(t => {
                 if (typeof(t.value) !== "string") 
                     throw new SyntaxError(`expected identifier, got '${t.value}'`);
@@ -76,7 +76,7 @@ export class DropStatementParser extends Parser {
             indexes.push(this.consume(TokenType.IDENTIFIER));
         }
         return {
-            type: "DropIndexStatement",
+            type: "DropIndex",
             objects: indexes.map(t => {
                 if (typeof(t.value) !== "string") 
                     throw new SyntaxError(`expected identifier, got '${t.value}'`);

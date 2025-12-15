@@ -17,7 +17,7 @@ export class TruncateStatementParser extends Parser {
         if (this._cursor < this._length && this._lexemes[this._cursor].type !== TokenType.EOF)
             throw new SyntaxError(`unexpected token ${this.peek().value}, expected ; or EOF`);
         return {
-            type: "TruncateTableStatement",
+            type: "TruncateTable",
             tables: tables.map(t => {
                 if (typeof(t.value) !== "string") 
                     throw new SyntaxError(`expected identifier, got '${t.value}'`);

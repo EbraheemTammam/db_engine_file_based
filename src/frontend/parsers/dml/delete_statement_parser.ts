@@ -11,7 +11,7 @@ export class DeleteStatementParser extends Parser {
         if (typeof(table_name.value) !== "string")
             throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
         let statement: DeleteStatement = {
-            type: "DeleteStatement",
+            type: "Delete",
             table_name: table_name.value
         }
         if (!(this.is_eof())) 

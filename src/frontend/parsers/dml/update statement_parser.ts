@@ -11,7 +11,7 @@ export class UpdateStatementParser extends Parser {
             throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
         this.consume(TokenType.KEYWORD, 'SET');
         let statement: UpdateStatement = {
-            type: "UpdateStatement",
+            type: "Update",
             table: table_name.value,
             updates: new Array<ColumnUpdate>()
         }

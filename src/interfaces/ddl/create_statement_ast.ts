@@ -1,13 +1,13 @@
 import { ASTNode } from "../ast"
 
 export interface CreateStatement extends ASTNode {
-    type: "CreateDatabaseStatement" | "CreateTableStatement" | "CreateIndexStatement",
+    type: "CreateDatabase" | "CreateTable" | "CreateIndex",
     name: string,
     skip_if_exists: boolean
 }
 
 export interface CreateDatabaseStatement extends CreateStatement {
-    type: "CreateDatabaseStatement",
+    type: "CreateDatabase",
     options?: {
         owner: string
     }
@@ -26,12 +26,12 @@ export interface CreateTableColumnStatement {
 }
 
 export interface CreateTableStatement extends CreateStatement {
-    type: "CreateTableStatement",
+    type: "CreateTable",
     columns: CreateTableColumnStatement[]
 }
 
 export interface CreateIndexStatement extends CreateStatement {
-    type: "CreateIndexStatement",
+    type: "CreateIndex",
     table_name: string,
     columns: string[]
 }

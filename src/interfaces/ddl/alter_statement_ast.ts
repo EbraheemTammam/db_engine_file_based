@@ -1,25 +1,25 @@
 import { ASTNode } from "../ast"
 
 export interface AlterStatement extends ASTNode {
-    type: "AlterTableAddColumnStatement" |
-          "AlterTableDropColumnStatement" | 
-          "AlterTableRenameColumnStatement" |
-          "AlterTableAlterColumnDataTypeStatement" |
-          "AlterTableAlterColumnDefaultValueStatement" |
-          "AlterTableAlterColumnNotNullStatement" |
-          "RenameDatabaseStatement" |
-          "RenameTableStatement" |
-          "RenameIndexStatement",
+    type: "AlterTableAddColumn" |
+          "AlterTableDropColumn" | 
+          "AlterTableRenameColumn" |
+          "AlterTableAlterColumnDataType" |
+          "AlterTableAlterColumnDefaultValue" |
+          "AlterTableAlterColumnNotNull" |
+          "RenameDatabase" |
+          "RenameTable" |
+          "RenameIndex",
     name: string
 }
 
 export interface AlterTableColumnStatement extends AlterStatement {
-    type: "AlterTableAddColumnStatement" |  
-          "AlterTableDropColumnStatement" | 
-          "AlterTableRenameColumnStatement" |
-          "AlterTableAlterColumnDataTypeStatement" |
-          "AlterTableAlterColumnDefaultValueStatement" |
-          "AlterTableAlterColumnNotNullStatement",
+    type: "AlterTableAddColumn" |  
+          "AlterTableDropColumn" | 
+          "AlterTableRenameColumn" |
+          "AlterTableAlterColumnDataType" |
+          "AlterTableAlterColumnDefaultValue" |
+          "AlterTableAlterColumnNotNull",
     column_name: string,
     new_name?: string,
     data_type?: string,
@@ -33,6 +33,6 @@ export interface AlterTableColumnStatement extends AlterStatement {
 }
 
 export interface RenameStatement extends AlterStatement {
-    type: "RenameDatabaseStatement" | "RenameTableStatement" | "RenameIndexStatement",
+    type: "RenameDatabase" | "RenameTable" | "RenameIndex",
     new_name: string
 }

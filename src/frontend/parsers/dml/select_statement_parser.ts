@@ -30,7 +30,7 @@ export class SelectStatementParser extends Parser {
         if (typeof(table.value) !== "string")
             throw new SyntaxError(`unexpected token ${table.value}, expected identifier`);
         let statement: SelectStatement = {
-            type: "SelectStatement",
+            type: "Select",
             table: table.value,
             distinct: distinct,
             columns: columns.map(c => {

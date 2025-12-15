@@ -43,7 +43,7 @@ export class AlterTableParser extends Parser {
         let default_value: string | number | boolean | undefined;
         let reference: string | undefined;
         let column: AlterTableColumnStatement = {
-            type: "AlterTableAddColumnStatement",
+            type: "AlterTableAddColumn",
             name: table_name.value,
             column_name: col_name.value,
             data_type: ctype.value, 
@@ -101,7 +101,7 @@ export class AlterTableParser extends Parser {
         if (typeof(column_name.value) !== "string") 
             throw new SyntaxError(`unexpected token ${column_name.value}, expected identifier`);
         return {
-            type: "AlterTableDropColumnStatement",
+            type: "AlterTableDropColumn",
             name: table_name.value,
             column_name: column_name.value
         }
@@ -161,7 +161,7 @@ export class AlterTableParser extends Parser {
             if (typeof(datatype.value) !== "string") 
                 throw new SyntaxError(`unexpected ${datatype.value}, expected identifier`);
             return {
-                type: "AlterTableAlterColumnDataTypeStatement",
+                type: "AlterTableAlterColumnDataType",
                 name: table_name.value,
                 column_name: col_name.value,
                 data_type: datatype.value
@@ -177,7 +177,7 @@ export class AlterTableParser extends Parser {
                 throw new SyntaxError(`unexpected ${col_name.value}, expected identifier`);
             self.consume(TokenType.KEYWORD, 'DEFAULT');
             let statement: AlterTableColumnStatement = {
-                type: "AlterTableAlterColumnDefaultValueStatement",
+                type: "AlterTableAlterColumnDefaultValue",
                 name: table_name.value,
                 column_name: col_name.value,
                 constraints: {
@@ -204,7 +204,7 @@ export class AlterTableParser extends Parser {
             self.consume(TokenType.KEYWORD, 'NOT');
             self.consume(TokenType.NULL);
             return {
-                type: "AlterTableAlterColumnNotNullStatement",
+                type: "AlterTableAlterColumnNotNull",
                 name: table_name.value,
                 column_name: col_name.value,
                 constraints: {
@@ -226,7 +226,7 @@ export class AlterTableParser extends Parser {
         if (typeof(new_name.value) !== "string")
             throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
         return {
-            type: "AlterTableRenameColumnStatement",
+            type: "AlterTableRenameColumn",
             name: table_name.value,
             column_name: old_name.value,
             new_name: new_name.value
@@ -241,7 +241,7 @@ export class AlterTableParser extends Parser {
         if (typeof(new_name.value) !== "string")
             throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
         return {
-            type: "RenameDatabaseStatement",
+            type: "RenameDatabase",
             name: table_name.value,
             new_name: new_name.value
         }
