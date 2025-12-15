@@ -15,7 +15,7 @@ export class DMLParserFactory {
     public build() : Parser {
         let peek: Token = this._lexemes[0];
         if (peek.type !== TokenType.KEYWORD)
-            throw new SyntaxError(`unexpected token ${peek.value}, expected a KEYWORD`)
+            throw new SyntaxError(`unexpected token ${peek.value}, expected a KEYWORD`);
         switch (peek.value) {
             case 'SELECT':
                 return new SelectStatementParser(this._lexemes);

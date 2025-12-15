@@ -15,7 +15,7 @@ export class DDLParserFactory {
     public build() : Parser {
         let peek: Token = this._lexemes[0];
         if (peek.type !== TokenType.KEYWORD)
-            throw new SyntaxError(`unexpected token ${peek.value}, expected a KEYWORD`)
+            throw new SyntaxError(`unexpected token ${peek.value}, expected a KEYWORD`);
         switch (peek.value) {
             case 'CREATE':
                 return new CreateStatementParser(this._lexemes);

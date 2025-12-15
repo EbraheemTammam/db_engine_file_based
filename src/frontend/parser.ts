@@ -13,7 +13,7 @@ export abstract class Parser implements IParser {
         this._length = tokens.length;
     }
 
-    public abstract parse() : ASTNode ;
+    public abstract parse() : ASTNode;
 
     protected peek() : Token { return this._lexemes[this._cursor]; }
 
