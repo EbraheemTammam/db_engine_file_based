@@ -59,5 +59,6 @@ export const KEYWORDS: string[] = [
     "WITH",
     "OWNER",
     "IF",
-    "TRUNCATE"
+    "TRUNCATE",
+    "RENAME"
 ]
