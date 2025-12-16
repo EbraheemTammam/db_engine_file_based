@@ -9,7 +9,7 @@ import {
 } from "src/interfaces/ddl/create_statement_ast";
 
 export class CreateStatementParser extends Parser {
-    public parse() : CreateStatement {
+    public override parse() : CreateStatement {
         this.consume(TokenType.KEYWORD, 'CREATE');
         let next: Token = this.peek();
         let statement: CreateStatement;

@@ -3,7 +3,7 @@ import { Token, TokenType } from "src/interfaces/token";
 import { DropStatement } from "src/interfaces/ddl/drop_statement_ast";
 
 export class DropStatementParser extends Parser {
-    public parse() : DropStatement {
+    public override parse() : DropStatement {
         this.consume(TokenType.KEYWORD, 'DROP');
         let next: Token = this.peek();
         let statement: DropStatement;

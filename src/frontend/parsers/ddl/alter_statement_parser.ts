@@ -7,7 +7,7 @@ import {
 import { AlterTableParser } from "./alter_table_parser";
 
 export class AlterStatementParser extends Parser {
-    public parse() : AlterStatement {
+    public override parse() : AlterStatement {
         this.consume(TokenType.KEYWORD, 'ALTER');
         let next: Token = this.peek();
         let statement: AlterStatement;

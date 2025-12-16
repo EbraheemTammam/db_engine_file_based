@@ -3,7 +3,7 @@ import { TruncateTableStatement } from "src/interfaces/ddl/truncate_statement_as
 import { Token, TokenType } from "src/interfaces/token";
 
 export class TruncateStatementParser extends Parser {
-    public parse() : TruncateTableStatement {
+    public override parse() : TruncateTableStatement {
         this.consume(TokenType.KEYWORD, 'TRUNCATE');
         this.consume(TokenType.KEYWORD, 'TABLE');
         let tables: Token[] = new Array<Token>();

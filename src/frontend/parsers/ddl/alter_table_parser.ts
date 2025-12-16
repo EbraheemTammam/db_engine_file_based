@@ -3,7 +3,7 @@ import { AlterStatement, AlterColumnStatement, RenameStatement } from "src/inter
 import { Token, TokenType } from "src/interfaces/token";
 
 export class AlterTableParser extends Parser {
-    parse() : AlterStatement {
+    public override parse() : AlterStatement {
         this.consume(TokenType.KEYWORD, 'ALTER');
         this.consume(TokenType.KEYWORD, 'TABLE');
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
