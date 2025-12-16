@@ -1,5 +1,6 @@
 import { NotImplementedException } from "@nestjs/common";
 import { Executer } from "src/backend/executer";
+import { AlterColumnStatement } from "src/interfaces/ddl/alter_statement_ast";
 import { ExecutionResult } from "src/interfaces/execution_result";
 
 export class AlterExecuter extends Executer {
@@ -10,7 +11,7 @@ export class AlterExecuter extends Executer {
         this._action = action;
     }
 
-    public execute() : ExecutionResult {
+    public override execute(statement: AlterColumnStatement) : ExecutionResult {
         throw new NotImplementedException();
     }
 }
