@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as readline from "readline";
 import { finished } from "stream/promises";
-import { mkdir } from "fs/promises";
+import { mkdir, rm } from "fs/promises";
 import { IFileHandler } from "src/interfaces/file_handler";
 import { data_type, premitive } from "src/interfaces/catalog";
 
@@ -52,6 +52,11 @@ export class FileHandler implements IFileHandler {
         catch {
             return false;
         }
+    }
+
+    public async delete_dirs_async(paths: string[]): Promise<void> {
+        for (const path of paths)
+            await rm(path, { recursive: true, force: true });
     }
     
     private async is_file_exists_async(path: string): Promise<boolean> {
