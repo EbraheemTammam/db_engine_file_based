@@ -17,7 +17,10 @@ export class AlterNameExecuter extends Executer {
         }
         await this._file_handler.write_async('database/schema/relations.csv', buffer);
         buffer = []
-        for await (const row of this._file_handler.stream_read_async('database/schema/attributes.csv', ['TEXT'])) {
+        for await (const row of this._file_handler.stream_read_async(
+            'database/schema/attributes.csv', 
+            ['TEXT', 'TEXT', 'TEXT', 'BOOL', 'BOOL', 'TEXT', 'BOOL', 'BOOL', 'TEXT']
+        )) {
             if (row[0] !== statement.name) {
                 buffer.push(row as premitive[]);
                 continue;
