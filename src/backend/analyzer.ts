@@ -9,8 +9,8 @@ export class Analyzer {
     }
 
     public async check_table_existance(table_name: string): Promise<boolean> {
-        for await (const row of this._file_handler.stream_read_async('database/schema/relations.csv', ['INT', 'TEXT', 'INT'])) {
-            if (row[1] === table_name) return true;
+        for await (const row of this._file_handler.stream_read_async('database/schema/relations.csv', ['TEXT'])) {
+            if (row[0] === table_name) return true;
         }
         return false;
     }
