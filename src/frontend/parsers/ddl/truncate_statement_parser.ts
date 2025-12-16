@@ -10,7 +10,10 @@ export class TruncateStatementParser extends Parser {
         tables.push(this.consume(TokenType.IDENTIFIER));
         if (typeof(tables[0].value) !== "string") 
             throw new SyntaxError(`expected identifier, got '${tables[0].value}'`);
-        while (![TokenType.EOF, TokenType.SEMICOLON].includes(this.peek().type)) {
+        while (!(
+            this.is_eof() ||
+            [TokenType.EOF, TokenType.SEMICOLON].includes(this.peek().type)
+        )) {
             this.consume(TokenType.COMMA);
             tables.push(this.consume(TokenType.IDENTIFIER));
         }
