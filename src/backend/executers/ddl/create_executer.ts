@@ -1,4 +1,5 @@
 import { Executer } from "src/backend/executer";
+import { ATTRIBUTE_SCHEMA_FILE, RELATION_SCHEMA_FILE, TABLE_PAGE_DATA_FILE } from "src/interfaces/catalog";
 import { CreateTableStatement } from "src/interfaces/ddl/create_statement_ast";
 import { ExecutionResult } from "src/interfaces/execution_result";
 
@@ -8,10 +9,10 @@ export class CreateExecuter extends Executer {
             if (statement.skip_if_exists) return { type: "COMMAND", tag: "CREATE TABLE" }
             throw new Error(`table ${statement.name} already exists`);
         }
-        await this._file_handler.append_async('database/schema/relations.csv', [[statement.name, statement.columns.length, 0, 1]]);
+        await this._file_handler.append_async(RELATION_SCHEMA_FILE, [[statement.name, statement.columns.length, 0, 1]]);
         let index: number = 0;
         await this._file_handler.append_async(
-            'database/schema/attributes.csv',
+            ATTRIBUTE_SCHEMA_FILE,
             statement.columns.map(c => [
                 statement.name, 
                 c.name,
@@ -25,7 +26,7 @@ export class CreateExecuter extends Executer {
                 c.constraints?.reference || ''
             ])
         );
-        await this._file_handler.write_async(`database/data/${statement.name}/page_1.csv`, [[]]);
+        await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.name, 1), [[]]);
         return { type: "COMMAND", tag: "CREATE TABLE" }
     }
 }
