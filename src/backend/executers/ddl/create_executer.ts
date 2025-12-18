@@ -8,12 +8,14 @@ export class CreateExecuter extends Executer {
             if (statement.skip_if_exists) return { type: "COMMAND", tag: "CREATE TABLE" }
             throw new Error(`table ${statement.name} already exists`);
         }
-        await this._file_handler.append_async('database/schema/relations.csv', [[statement.name]]);
+        await this._file_handler.append_async('database/schema/relations.csv', [[statement.name, 0]]);
+        let index: number = 0;
         await this._file_handler.append_async(
             'database/schema/attributes.csv',
             statement.columns.map(c => [
                 statement.name, 
                 c.name,
+                index++,
                 c.data_type,
                 c.constraints?.not_null || false,
                 c.constraints?.unique || false,
@@ -23,7 +25,7 @@ export class CreateExecuter extends Executer {
                 c.constraints?.reference || ''
             ])
         );
-        await this._file_handler.write_async(`database/data/${statement.name}/page_1.csv`, [statement.columns.map(c => c.name)]);
+        await this._file_handler.write_async(`database/data/${statement.name}/page_1.csv`, [[]]);
         return { type: "COMMAND", tag: "CREATE TABLE" }
     }
 }
