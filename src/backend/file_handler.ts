@@ -6,20 +6,13 @@ import { IFileHandler } from "src/interfaces/file_handler";
 import { data_type, premitive } from "src/interfaces/catalog";
 
 export class FileHandler implements IFileHandler {
-    public async* stream_read_async(path: string, schema: data_type[]): AsyncGenerator<premitive[] | false> {
+    public async* stream_read_async(path: string, schema: data_type[]): AsyncGenerator<premitive[]> {
         if (!await this.is_file_exists_async(path))
-            return false;
+            throw new Error(`file ${path} does not exist`);
         const file: fs.ReadStream = fs.createReadStream(path);
         const read_line: readline.Interface = readline.createInterface({ input: file });
-        let headers: string[] | null = null;
-        for await (const line of read_line) {
-            if (!headers) {
-                headers = line.split(",");
-                yield headers;
-                continue;
-            }
+        for await (const line of read_line)
             yield this.format(line, schema);
-        }
     }
 
     public async write_async(path: string, data: premitive[][]): Promise<boolean> {
