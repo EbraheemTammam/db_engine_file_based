@@ -5,7 +5,7 @@ import { ExecutionResult } from "src/interfaces/execution_result";
 export class TruncateExecuter extends Executer {
     public override async execute_async(statement: TruncateTableStatement) : Promise<ExecutionResult> {
         for (const name of statement.tables) {
-            if (!await this._analyzer.check_table_existance(name))
+            if (!await this._analyzer.check_table_existance_async(name))
                 throw new Error(`table ${name} does not exist`);
         }
         await this._file_handler.delete_dirs_async(statement.tables.map(o => `database/data/${o}`));

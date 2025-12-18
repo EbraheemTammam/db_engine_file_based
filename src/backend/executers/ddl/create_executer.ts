@@ -4,7 +4,7 @@ import { ExecutionResult } from "src/interfaces/execution_result";
 
 export class CreateExecuter extends Executer {
     public override async execute_async(statement: CreateTableStatement): Promise<ExecutionResult> {
-        if (await this._analyzer.check_table_existance(statement.name)) {
+        if (await this._analyzer.check_table_existance_async(statement.name)) {
             if (statement.skip_if_exists) return { type: "COMMAND", tag: "CREATE TABLE" }
             throw new Error(`table ${statement.name} already exists`);
         }

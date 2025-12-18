@@ -14,7 +14,7 @@ import { ExecutionResult } from "src/interfaces/execution_result";
 export class DropExecuter extends Executer {
     public override async execute_async(statement: DropStatement) : Promise<ExecutionResult> {
         for (const name of statement.objects) {
-            if (!await this._analyzer.check_table_existance(name)) {
+            if (!await this._analyzer.check_table_existance_async(name)) {
                 throw new Error(`table ${name} does not exist`);
             }
         }

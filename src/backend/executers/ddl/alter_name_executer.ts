@@ -5,7 +5,7 @@ import { ExecutionResult } from "src/interfaces/execution_result";
 
 export class AlterNameExecuter extends Executer {
     public override async execute_async(statement: RenameStatement) : Promise<ExecutionResult> {
-        if (await this._analyzer.check_table_existance(statement.new_name))
+        if (await this._analyzer.check_table_existance_async(statement.new_name))
             throw new Error(`table ${statement.new_name} already exists`);
         let buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(RELATION_SCHEMA_FILE, RELATION_CATALOG_DATATYPES)) {

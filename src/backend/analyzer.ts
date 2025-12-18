@@ -18,14 +18,14 @@ export class Analyzer {
         this._file_handler = new FileHandler();
     }
 
-    public async check_table_existance(table_name: string): Promise<boolean> {
+    public async check_table_existance_async(table_name: string): Promise<boolean> {
         for await (const row of this._file_handler.stream_read_async(
             RELATION_SCHEMA_FILE, RELATION_CATALOG_DATATYPES
         )) if (row[0] === table_name) return true;
         return false;
     }
     
-    public async check_column_existance(table_name: string, column_name: string) {
+    public async check_column_existance_async(table_name: string, column_name: string) {
         for await (const row of this._file_handler.stream_read_async(
             ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES
         )) if (row[0] === table_name && row[1] === column_name) return true;
