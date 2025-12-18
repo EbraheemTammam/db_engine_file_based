@@ -12,7 +12,7 @@ import { token_array_split } from 'src/utils/token_array_split';
 @Injectable()
 export class CoreService {
     public async execute_async(buffer: string, type: "DDL" | "DML" = "DDL") {
-        let lexemes: Array<Token> = this.lex(buffer);
+        let lexemes: Array<Token> = this.lex(buffer).filter(token => token.type !== TokenType.COMMENT);
         let ASTs: ASTNode[] = type === "DDL" ? this.parse_ddl(lexemes) : this.parse_dml(lexemes);
         return await this.execute_ddl_async(ASTs);
     }
