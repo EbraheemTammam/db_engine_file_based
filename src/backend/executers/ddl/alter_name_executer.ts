@@ -14,17 +14,19 @@ export class AlterNameExecuter extends Executer {
                 buffer.push(row);
                 continue;
             }
-            buffer.push([statement.new_name, relation.row_count]);
+            relation.name = statement.new_name;
+            buffer.push(this._analyzer.serialize_relation(relation));
         }
         await this._file_handler.write_async(RELATION_SCHEMA_FILE, buffer);
         buffer = []
         for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
             const attribute: AttributeCatalog = this._analyzer.deserialize_attribute(row);
-            if (attribute.name !== statement.name) {
+            if (attribute.relation !== statement.name) {
                 buffer.push(row);
                 continue;
             }
-            buffer.push([statement.new_name, ...row.slice(1)]);
+            attribute.relation = statement.new_name;
+            buffer.push(this._analyzer.serialize_attribute(attribute));
         }
         await this._file_handler.write_async(ATTRIBUTE_SCHEMA_FILE, buffer);
         this._file_handler.rename_dir(TABLE_DIR(statement.name), TABLE_DIR(statement.new_name));
