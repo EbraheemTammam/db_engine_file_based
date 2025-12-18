@@ -10,8 +10,8 @@ export class LogicalConditionParser extends Parser {
         if (left.value !== "id")
             throw new SyntaxError(`unexpected token ${left.value}, filtering using fields other than id is not supported currently`);
         const operator: Token = this.consume(TokenType.OPERATOR);
-        if (typeof(operator.value) !== "string")
-            throw new SyntaxError(`unexpected token ${left.value}, expected identifier`);
+        if (operator.value !== "=")
+            throw new SyntaxError(`unexpected token ${left.value}, only = operator is supported currently`);
         const right: Token = this.consume();
         if (![TokenType.STRING, TokenType.NUMBER, TokenType.NULL, TokenType.BOOLEAN].includes(right.type))
             throw new SyntaxError(`unexpected token ${left.value}, expected a literal`);
