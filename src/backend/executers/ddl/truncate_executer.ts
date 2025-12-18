@@ -11,7 +11,7 @@ export class TruncateExecuter extends Executer {
         }
         await this._file_handler.delete_dirs_async(statement.tables.map(name => TABLE_DIR(name)));
         for (const table of statement.tables)
-            await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(table, 1), [[]]);
+            await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(table, 1), []);
         return { type: "COMMAND", tag: "TRUNCATE TABLE" }
     }
 }

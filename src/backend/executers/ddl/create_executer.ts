@@ -26,7 +26,7 @@ export class CreateExecuter extends Executer {
                 c.constraints?.reference || ''
             ])
         );
-        await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.name, 1), [[]]);
+        await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.name, 1), []);
         return { type: "COMMAND", tag: "CREATE TABLE" }
     }
 }
