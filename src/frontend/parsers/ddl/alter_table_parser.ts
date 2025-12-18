@@ -123,9 +123,9 @@ export class AlterTableParser extends Parser {
                     case 'DEFAULT':
                         statement = parse_alter_column_default_value(this, table_name, col_name, true);
                         break;
-                    case 'NOT':
-                        statement = parse_alter_column_not_null(this, table_name, col_name, true);
-                        break;
+                    // case 'NOT':
+                    //     statement = parse_alter_column_not_null(this, table_name, col_name, true);
+                    //     break;
                     default:
                         throw new SyntaxError(`unexpected token '${next.value}', expected KEYWORD`);
                 }
