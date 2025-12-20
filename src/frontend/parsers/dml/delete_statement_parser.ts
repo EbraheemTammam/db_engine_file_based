@@ -8,11 +8,10 @@ export class DeleteStatementParser extends Parser {
         this.consume(TokenType.KEYWORD, 'DELETE');
         this.consume(TokenType.KEYWORD, 'FROM');
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
+        this.validate_token_datatype(table_name);
         let statement: DeleteStatement = {
             type: "Delete",
-            table_name: table_name.value
+            table_name: table_name.value as string
         }
         if (!(this.is_eof())) 
             statement.condition = new LogicalConditionParser(this._lexemes.slice(this._cursor)).parse();

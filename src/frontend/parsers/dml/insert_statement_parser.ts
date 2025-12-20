@@ -7,26 +7,23 @@ export class InsertStatementParser extends Parser {
         this.consume(TokenType.KEYWORD, 'INSERT');
         this.consume(TokenType.KEYWORD, 'INTO');
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
+        this.validate_token_datatype(table_name);
         let statement: InsertStatement = {
             type: "Insert",
-            table: table_name.value,
+            table: table_name.value as string,
             values: new Array<Array<value>>()
         }
         if (this.peek().type === TokenType.OPEN_PARAN) {
             this.consume(TokenType.OPEN_PARAN);
             statement.columns = new Array<string>();
             let col: Token = this.consume(TokenType.IDENTIFIER);
-            if (typeof(col.value) !== "string")
-                throw new SyntaxError(`unexpected token ${col.value}, expected identifier`);
-            statement.columns.push(col.value);
+            this.validate_token_datatype(col);
+            statement.columns.push(col.value as string);
             while (this.peek().type !== TokenType.CLOSE_PARAN) {
                 this.consume(TokenType.COMMA);
                 col = this.consume(TokenType.IDENTIFIER);
-                if (typeof(col.value) !== "string")
-                    throw new SyntaxError(`unexpected token ${col.value}, expected identifier`);
-                statement.columns.push(col.value);
+                this.validate_token_datatype(col);
+                statement.columns.push(col.value as string);
             }
             this.consume(TokenType.CLOSE_PARAN);
         }

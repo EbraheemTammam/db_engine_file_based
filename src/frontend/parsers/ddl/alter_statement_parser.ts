@@ -31,34 +31,30 @@ export class AlterStatementParser extends Parser {
     private parse_rename_database() : RenameStatement {
         this.consume(TokenType.KEYWORD, 'DATABASE');
         let db_name = this.consume(TokenType.IDENTIFIER);
-        if (typeof(db_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${db_name.value}', expected identifer`);
+        this.validate_token_datatype(db_name);
         this.consume(TokenType.KEYWORD, 'RENAME');
         this.consume(TokenType.KEYWORD, 'TO');
         let new_name = this.consume(TokenType.IDENTIFIER);
-        if (typeof(new_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
+        this.validate_token_datatype(new_name);
         return {
             type: "AlterDatabaseName",
-            name: db_name.value,
-            new_name: new_name.value
+            name: db_name.value as string,
+            new_name: new_name.value as string
         }
     }
     
     private parse_rename_index() : RenameStatement {
         this.consume(TokenType.KEYWORD, 'INDEX');
         let idx_name = this.consume(TokenType.IDENTIFIER);
-        if (typeof(idx_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${idx_name.value}', expected identifer`);
+        this.validate_token_datatype(idx_name);
         this.consume(TokenType.KEYWORD, 'RENAME');
         this.consume(TokenType.KEYWORD, 'TO');
         let new_name = this.consume(TokenType.IDENTIFIER);
-        if (typeof(new_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
+        this.validate_token_datatype(new_name);
         return {
             type: "AlterIndexName",
-            name: idx_name.value,
-            new_name: new_name.value
+            name: idx_name.value as string,
+            new_name: new_name.value as string
         }
     }
 }

@@ -33,9 +33,8 @@ export class CreateStatementParser extends Parser {
 
     private parse_create_database() : CreateDatabaseStatement {
         this.consume(TokenType.KEYWORD, 'DATABASE');
-        let identifier: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(identifier.value) !== "string")
-            throw new SyntaxError(`expected identifier, got ${identifier.value}`);
+        let db_name: Token = this.consume(TokenType.IDENTIFIER);
+        this.validate_token_datatype(db_name);
         let skip_if_exists: boolean = false;
         if (this.peek().value === 'IF') {
             this.consume(TokenType.KEYWORD, 'IF');
@@ -45,17 +44,16 @@ export class CreateStatementParser extends Parser {
         }
         let statement: CreateDatabaseStatement = {
             type: "CreateDatabase",
-            name: identifier.value,
+            name: db_name.value as string,
             skip_if_exists: skip_if_exists
         }
         if (this.peek().value === 'WITH') {
             this.consume(TokenType.KEYWORD, 'WITH');
             this.consume(TokenType.KEYWORD, 'OWNER');
             let owner: Token = this.consume(TokenType.IDENTIFIER);
-            if (typeof(owner.value) !== "string")
-                throw new SyntaxError(`expected identifier, got ${owner.value}`);
+            this.validate_token_datatype(owner);
             statement.options = {
-                'owner': owner.value
+                'owner': owner.value as string
             }
         }
         return statement;
@@ -71,22 +69,20 @@ export class CreateStatementParser extends Parser {
             skip_if_exists = true;
         }
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string") throw new SyntaxError(`expected a string, got ${table_name.value}`)
+        this.validate_token_datatype(table_name);
         let columns: CreateTableColumnStatement[] = new Array<CreateTableColumnStatement>();
         let iterator: Token = this.consume(TokenType.OPEN_PARAN, '(');
         while (iterator.type !== TokenType.CLOSE_PARAN) {
             iterator = this.consume(TokenType.IDENTIFIER);
-            if (typeof(iterator.value) !== "string") 
-                throw new SyntaxError(`unexpected token ${iterator.value}, expected identifier`)
+            this.validate_token_datatype(iterator);
             let ctype: Token = this.consume(TokenType.TYPE);
-            if (typeof(ctype.value) !== "string") 
-                throw new SyntaxError(`unexpected token ${iterator.value}, expected identifier`)
+            this.validate_token_datatype(ctype);
             let [pk, not_null, unique]: [boolean, boolean, boolean] = [false, false, false];
             let default_value: string | number | boolean | undefined;
             let reference: string | undefined;
             let column: CreateTableColumnStatement = {
-                name: iterator.value,
-                data_type: ctype.value,
+                name: iterator.value as string,
+                data_type: ctype.value as string,
             }
             let next: Token;
             while (true) {
@@ -137,7 +133,7 @@ export class CreateStatementParser extends Parser {
         }
         return {
             type: "CreateTable",
-            name: table_name.value,
+            name: table_name.value as string,
             skip_if_exists: skip_if_exists,
             columns: columns
         }
@@ -153,19 +149,16 @@ export class CreateStatementParser extends Parser {
             skip_if_exists = true;
         }
         let index_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(index_name.value) !== "string")
-            throw new SyntaxError(`unexpected token ${index_name.value}, expected identifier`);
+        this.validate_token_datatype(index_name);
         this.consume(TokenType.KEYWORD, 'ON');
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token ${table_name.value}, expected identifier`);
+        this.validate_token_datatype(table_name);
         this.consume(TokenType.OPEN_PARAN, '(');
         let cols: string[] = new Array<string>();
         while (true) {
             let col: Token = this.consume(TokenType.IDENTIFIER);
-            if (typeof(col.value) !== "string")
-                throw new SyntaxError(`unexpected token ${col.value}, expected identifier`);
-            cols.push(col.value);
+            this.validate_token_datatype(col);
+            cols.push(col.value as string);
             let next: Token = this.peek();
             if (next.type === TokenType.COMMA) {
                 this.consume(TokenType.COMMA);
@@ -179,8 +172,8 @@ export class CreateStatementParser extends Parser {
         }
         return {
             type: "CreateIndex",
-            name: index_name.value,
-            table_name: table_name.value,
+            name: index_name.value as string,
+            table_name: table_name.value as string,
             columns: cols,
             skip_if_exists: skip_if_exists
         }

@@ -7,8 +7,7 @@ export class AlterTableParser extends Parser {
         this.consume(TokenType.KEYWORD, 'ALTER');
         this.consume(TokenType.KEYWORD, 'TABLE');
         let table_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${table_name.value}', expected identifer`);
+        this.validate_token_datatype(table_name);
         let next: Token = this.peek();
         switch (next.value) {
             case 'ADD':
@@ -28,25 +27,20 @@ export class AlterTableParser extends Parser {
     }
                     
     private parse_add_column(table_name: Token) : AlterColumnStatement {
-        if (typeof(table_name.value) !== "string") {
-            throw new SyntaxError(`unexpected token '${table_name.value}', expected identifer`);
-        }
         this.consume(TokenType.KEYWORD, 'ADD');
         this.consume(TokenType.KEYWORD, 'COLUMN');
         let col_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(col_name.value) !== "string") 
-            throw new SyntaxError(`unexpected token ${col_name.value}, expected identifier`);
+        this.validate_token_datatype(col_name);
         let ctype: Token = this.consume(TokenType.TYPE);
-        if (typeof(ctype.value) !== "string") 
-            throw new SyntaxError(`unexpected token ${ctype.value}, expected identifier`);
+        this.validate_token_datatype(ctype);
         let [pk, not_null, unique]: [boolean, boolean, boolean] = [false, false, false];
         let default_value: string | number | boolean | undefined;
         let reference: string | undefined;
         let column: AlterColumnStatement = {
             type: "AlterColumnAdd",
-            name: table_name.value,
-            column_name: col_name.value,
-            data_type: ctype.value, 
+            name: table_name.value as string,
+            column_name: col_name.value as string,
+            data_type: ctype.value as string 
         }
         let next: Token = this.peek();
         while (next.type !== TokenType.SEMICOLON) {
@@ -93,17 +87,14 @@ export class AlterTableParser extends Parser {
     }
     
     private parse_drop_column(table_name: Token) : AlterColumnStatement {
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${table_name.value}', expected identifer`);
         this.consume(TokenType.KEYWORD, 'DROP');
         this.consume(TokenType.KEYWORD, 'COLUMN');
         let column_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(column_name.value) !== "string") 
-            throw new SyntaxError(`unexpected token ${column_name.value}, expected identifier`);
+        this.validate_token_datatype(column_name);
         return {
             type: "AlterColumnDrop",
-            name: table_name.value,
-            column_name: column_name.value
+            name: table_name.value as string,
+            column_name: column_name.value as string
         }
     }
 
@@ -111,6 +102,7 @@ export class AlterTableParser extends Parser {
         this.consume(TokenType.KEYWORD, 'ALTER');
         this.consume(TokenType.KEYWORD, 'COLUMN');
         let col_name: Token = this.consume(TokenType.IDENTIFIER);
+        this.validate_token_datatype(col_name);
         let behavior: Token = this.consume(TokenType.KEYWORD);
         let next: Token = this.peek();
         let statement: AlterStatement;
@@ -152,34 +144,25 @@ export class AlterTableParser extends Parser {
         function parse_alter_column_datatype(
             self: AlterTableParser, table_name: Token, col_name: Token
         ) : AlterColumnStatement {
-            if (typeof(table_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${table_name.value}, expected identifier`);
-            if (typeof(col_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${col_name.value}, expected identifier`);
             self.consume(TokenType.KEYWORD, 'DATATYPE');
             let datatype: Token = self.consume(TokenType.IDENTIFIER);
-            if (typeof(datatype.value) !== "string") 
-                throw new SyntaxError(`unexpected ${datatype.value}, expected identifier`);
+            self.validate_token_datatype(datatype);
             return {
                 type: "AlterColumnDataType",
-                name: table_name.value,
-                column_name: col_name.value,
-                data_type: datatype.value
+                name: table_name.value as string,
+                column_name: col_name.value as string,
+                data_type: datatype.value as string
             }
         }
 
         function parse_alter_column_default_value(
             self: AlterTableParser, table_name: Token, col_name: Token, set_or_drop: boolean = false
         ) : AlterColumnStatement {
-            if (typeof(table_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${table_name.value}, expected identifier`);
-            if (typeof(col_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${col_name.value}, expected identifier`);
             self.consume(TokenType.KEYWORD, 'DEFAULT');
             let statement: AlterColumnStatement = {
                 type: "AlterColumnDefaultValue",
-                name: table_name.value,
-                column_name: col_name.value,
+                name: table_name.value as string,
+                column_name: col_name.value as string,
                 constraints: {
                     default: null
                 }
@@ -197,16 +180,12 @@ export class AlterTableParser extends Parser {
         function parse_alter_column_not_null(
             self: AlterTableParser, table_name: Token, col_name:Token, set_or_drop: boolean = false
         ) : AlterColumnStatement {
-            if (typeof(table_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${table_name.value}, expected identifier`);
-            if (typeof(col_name.value) !== "string") 
-                throw new SyntaxError(`unexpected ${col_name.value}, expected identifier`);
             self.consume(TokenType.KEYWORD, 'NOT');
             self.consume(TokenType.NULL);
             return {
                 type: "AlterColumnNotNull",
-                name: table_name.value,
-                column_name: col_name.value,
+                name: table_name.value as string,
+                column_name: col_name.value as string,
                 constraints: {
                     not_null: set_or_drop
                 }
@@ -215,35 +194,28 @@ export class AlterTableParser extends Parser {
     }
 
     private parse_rename_column(table_name: Token) : AlterColumnStatement {
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${table_name.value}', expected identifer`);
         this.consume(TokenType.KEYWORD, 'COLUMN');
         let old_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(old_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${old_name.value}', expected identifer`);
+        this.validate_token_datatype(old_name);
         this.consume(TokenType.KEYWORD, 'TO');
         let new_name: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(new_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
+        this.validate_token_datatype(new_name);
         return {
             type: "AlterColumnName",
-            name: table_name.value,
-            column_name: old_name.value,
-            new_name: new_name.value
+            name: table_name.value as string,
+            column_name: old_name.value as string,
+            new_name: new_name.value as string
         }
     }
 
     private parse_rename_table(table_name: Token) : RenameStatement {
-        if (typeof(table_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${table_name.value}', expected identifer`);
         this.consume(TokenType.KEYWORD, 'TO');
         let new_name = this.consume(TokenType.IDENTIFIER);
-        if (typeof(new_name.value) !== "string")
-            throw new SyntaxError(`unexpected token '${new_name.value}', expected identifer`);
+        this.validate_token_datatype(new_name);
         return {
             type: "AlterDatabaseName",
-            name: table_name.value,
-            new_name: new_name.value
+            name: table_name.value as string,
+            new_name: new_name.value as string
         }
     }
 }

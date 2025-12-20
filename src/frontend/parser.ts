@@ -34,4 +34,9 @@ export abstract class Parser implements IParser {
     protected is_eof() : boolean {
         return this._cursor === this._length || this.peek().type == TokenType.EOF;
     }
+
+    protected validate_token_datatype(token: Token, datatype: string = "string", expected: string = "identifier"): void {
+        if (typeof(token.value) !== datatype)
+            throw new SyntaxError(`unexpected token '${token.value}', expected ${expected}`);
+    }
 }

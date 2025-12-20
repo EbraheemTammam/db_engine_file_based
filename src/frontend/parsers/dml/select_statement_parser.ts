@@ -14,7 +14,7 @@ export class SelectStatementParser extends Parser {
         }
         let columns: Array<Token> = new Array<Token>();
         while (true) {
-            let col: Token = this.consume();
+            const col: Token = this.consume();
             if (
                 !(
                     col.type === TokenType.IDENTIFIER ||
@@ -27,16 +27,14 @@ export class SelectStatementParser extends Parser {
         }
         this.consume(TokenType.KEYWORD, 'FROM');
         let table: Token = this.consume(TokenType.IDENTIFIER);
-        if (typeof(table.value) !== "string")
-            throw new SyntaxError(`unexpected token ${table.value}, expected identifier`);
+        this.validate_token_datatype(table);
         let statement: SelectStatement = {
             type: "Select",
-            table: table.value,
+            table: table.value as string,
             distinct: distinct,
             columns: columns.map(c => {
-                if (typeof(c.value) !== "string")
-                    throw new SyntaxError(`unexpected token ${c.value}, expected * or identifier`);
-                return c.value
+                this.validate_token_datatype(c);
+                return c.value as string
             }),
             grouping: new Array<string>(),
             ordering: new Array<string>()
@@ -50,36 +48,31 @@ export class SelectStatementParser extends Parser {
                 case 'GROUP':
                     this.consume(TokenType.KEYWORD, 'BY');
                     let group: Token = this.consume(TokenType.IDENTIFIER);
-                    if (typeof(group.value) !== "string")
-                        throw new SyntaxError(`unexpected token ${group.value}, expected identifier`);
-                    statement.grouping?.push(group.value);
+                    this.validate_token_datatype(group);
+                    statement.grouping?.push(group.value as string);
                     while (this.peek().type === TokenType.COMMA) {
                         this.consume(TokenType.COMMA);
                         group = this.consume(TokenType.IDENTIFIER);
-                        if (typeof(group.value) !== "string")
-                            throw new SyntaxError(`unexpected token ${group.value}, expected identifier`);
-                        statement.grouping?.push(group.value);
+                        this.validate_token_datatype(group);
+                        statement.grouping?.push(group.value as string);
                     }
                     break;
                 case 'ORDER':
                     this.consume(TokenType.KEYWORD, 'BY');
                     let order: Token = this.consume(TokenType.IDENTIFIER);
-                    if (typeof(order.value) !== "string")
-                        throw new SyntaxError(`unexpected token ${order.value}, expected identifier`);
-                    statement.ordering?.push(order.value);
+                    this.validate_token_datatype(order);
+                    statement.ordering?.push(order.value as string);
                     while (this.peek().type === TokenType.COMMA) {
                         this.consume(TokenType.COMMA);
                         order = this.consume(TokenType.IDENTIFIER);
-                        if (typeof(order.value) !== "string")
-                            throw new SyntaxError(`unexpected token ${order.value}, expected identifier`);
-                        statement.ordering?.push(order.value);
+                        this.validate_token_datatype(order);
+                        statement.ordering?.push(order.value as string);
                     }
                     break;
                 case 'LIMIT':
                     let limit: Token = this.consume(TokenType.NUMBER);
-                    if (typeof(limit.value) !== "number")
-                        throw new SyntaxError(`'unexpected token ${limit.value}, expected a number`);
-                    statement.limit = limit.value;
+                    this.validate_token_datatype(limit, "number", "a number");
+                    statement.limit = limit.value as number;
                     break;
                 default:
                     throw new SyntaxError(`unexpected token ${keyword.value}, expected a KEYWORD`);

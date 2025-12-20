@@ -8,8 +8,6 @@ export class TruncateStatementParser extends Parser {
         this.consume(TokenType.KEYWORD, 'TABLE');
         let tables: Token[] = new Array<Token>();
         tables.push(this.consume(TokenType.IDENTIFIER));
-        if (typeof(tables[0].value) !== "string") 
-            throw new SyntaxError(`expected identifier, got '${tables[0].value}'`);
         while (!(
             this.is_eof() ||
             [TokenType.EOF, TokenType.SEMICOLON].includes(this.peek().type)
@@ -22,9 +20,8 @@ export class TruncateStatementParser extends Parser {
         return {
             type: "TruncateTable",
             tables: tables.map(t => {
-                if (typeof(t.value) !== "string") 
-                    throw new SyntaxError(`expected identifier, got '${t.value}'`);
-                return t.value;
+                this.validate_token_datatype(t);
+                return t.value as string;
             })
         }
     }
