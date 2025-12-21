@@ -39,9 +39,9 @@ export class InsertStatementParser extends Parser {
             while (this.peek().type !== TokenType.CLOSE_PARAN) {
                 this.consume(TokenType.COMMA);
                 value = this.consume();
-                if (value.value === undefined) 
-                    throw new SyntaxError(`unexpected token ${value.type}, expected value`);
-                statement.values[statement.values.length - 1].push(value.value);
+                if (value.value === undefined && value.type !== TokenType.NULL)
+                    throw new SyntaxError(`unexpected token ${TokenType[value.type]}, expected value`);
+                statement.values[statement.values.length - 1].push(value.value || null);
             }
             this.consume(TokenType.CLOSE_PARAN);
             if (this.is_eof() || this.peek().type !== TokenType.COMMA) break;
