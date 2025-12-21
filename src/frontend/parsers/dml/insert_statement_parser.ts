@@ -1,5 +1,6 @@
 import { Parser } from "src/frontend/parser";
-import { InsertStatement, value } from "src/interfaces/dml/insert_statement_ast";
+import { premitive } from "src/interfaces/catalog";
+import { InsertStatement } from "src/interfaces/dml/insert_statement_ast";
 import { Token, TokenType } from "src/interfaces/token";
 
 export class InsertStatementParser extends Parser {
@@ -11,7 +12,7 @@ export class InsertStatementParser extends Parser {
         let statement: InsertStatement = {
             type: "Insert",
             table: table_name.value as string,
-            values: new Array<Array<value>>()
+            values: new Array<Array<premitive>>()
         }
         if (this.peek().type === TokenType.OPEN_PARAN) {
             this.consume(TokenType.OPEN_PARAN);
@@ -30,7 +31,7 @@ export class InsertStatementParser extends Parser {
         this.consume(TokenType.KEYWORD, 'VALUES');
         while (!this.is_eof()) {
             this.consume(TokenType.OPEN_PARAN);
-            statement.values.push(new Array<value>());
+            statement.values.push(new Array<premitive>());
             let value: Token = this.consume();
             if (value.value === undefined) 
                 throw new SyntaxError(`unexpected token ${value.type}, expected value`);

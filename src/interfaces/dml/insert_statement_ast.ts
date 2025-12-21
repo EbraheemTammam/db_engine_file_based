@@ -1,10 +1,9 @@
 import { ASTNode } from "../ast";
-
-export type value = string | number | boolean | null;
+import { premitive } from "../catalog";
 
 export interface InsertStatement extends ASTNode {
     type: "Insert",
     table: string,
     columns?: string[],
-    values: Array<Array<value>>
+    values: Array<Array<premitive>>
 }
