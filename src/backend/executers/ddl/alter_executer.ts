@@ -80,7 +80,9 @@ export class AlterExecuter extends Executer {
         await this._file_handler.write_async(ATTRIBUTE_SCHEMA_FILE, buffer);
         await this._analyzer.increment_column_count_async(statement.name, -1);
         const page_count: number = (await this._analyzer.get_relation_catalog_async(statement.name)).page_count;
-        const column_index: number = (await this._analyzer.get_attribute_catalog_async(statement.name, statement.column_name)).index;
+        const column_index: number = (
+            await this._analyzer.get_attributes_catalogs_async(statement.name, [statement.column_name])
+        )[0].index;
         for (let page_number: number = 1; page_number <= page_count; ++page_number) {
             const buffer: premitive[][] = [];
             for await (const row of this._file_handler.stream_read_async(TABLE_PAGE_DATA_FILE(statement.name, page_number)))
