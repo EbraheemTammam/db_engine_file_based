@@ -96,6 +96,20 @@ export class Analyzer {
         }
     }
 
+    public async validate_values_length_async(table: string, columns: string[] | undefined = undefined, values: premitive[][]): Promise<void> {
+        const length: number = (
+            columns === undefined ? 
+            (await this.get_relation_catalog_async(table)).column_count : 
+            columns.length
+        ); 
+        for (const row of values) {
+            if (row.length < length)
+                throw new Error('INSERT has more target columns than expressions');
+            else if (row.length > length)
+                throw new Error('INSERT has more expressions than target columns');
+        }
+    }
+
     public async increment_column_count_async(table_name: string, increment_by: number = 1): Promise<void> {
         let buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(
