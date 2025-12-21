@@ -1,11 +1,14 @@
 import { Executer } from "src/backend/executer";
 import { TABLE_PAGE_DATA_FILE } from "src/constants/file_path";
-import { premitive, RelationCatalog } from "src/interfaces/catalog";
+import { AttributeCatalog, premitive, RelationCatalog } from "src/interfaces/catalog";
 import { UpdateStatement } from "src/interfaces/dml/update_statement_ast";
 import { ExecutionResult } from "src/interfaces/execution_result";
 
 export class UpdateExecuter extends Executer {
     public async execute_async(statement: UpdateStatement): Promise<ExecutionResult> {
+        if ((new Set<string>(statement.columns)).size < statement.columns.length)
+            throw new Error('multiple assignments to the same column');
+        this.validate_column_datatypes_async(statement);
         let row_count: number = 1;
         switch (statement.condition) {
             case undefined:
@@ -57,8 +60,23 @@ export class UpdateExecuter extends Executer {
     }
 
     private async get_column_indexes_async(statement: UpdateStatement): Promise<number[]> {
-        if ((new Set<string>(statement.columns)).size < statement.columns.length)
-            throw new Error('multiple assignments to the same column');
-        return (await this._analyzer.get_attributes_catalogs_async(statement.table, statement.columns)).map(catalog => catalog.index);
+        return (
+            await this._analyzer.get_attributes_catalogs_async(statement.table, statement.columns)
+        ).map(catalog => catalog.index);
+    }
+
+    private async validate_column_datatypes_async(statement: UpdateStatement): Promise<void> {
+        const catalogs: AttributeCatalog[] = await this._analyzer.get_attributes_catalogs_async(statement.table, statement.columns);
+        for (let i: number = 0; i < catalogs.length; ++i) {
+            switch (true) {
+                case catalogs[i].type === "BOOL" && typeof(statement.values[i]) === "boolean":
+                case catalogs[i].type === "TEXT" && typeof(statement.values[i]) === "string":
+                case catalogs[i].type === "INT" && typeof(statement.values[i]) === "number":
+                case catalogs[i].type === "SERIAL" && typeof(statement.values[i]) === "number":
+                    break;
+                default:
+                    throw new Error(`value '${statement.values[i]}' can not be assigned to column of type ${catalogs[i].type}`);
+            }
+        }
     }
 }
