@@ -20,8 +20,8 @@ export class DeleteExecuter extends Executer {
     private async delete_one_async(statement: DeleteStatement): Promise<void> {
         const id: number = statement.condition?.right as number;
         const page_number: number = this._analyzer.get_page_number(id);
-        const page_count: number = (await this._analyzer.get_relation_catalog_async(statement.table_name)).page_count;
-        if (page_number > page_count)
+        const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.table_name);
+        if (page_number > catalog.page_count)
             throw new Error(`object with id ${id} does not exist`);
         const buffer: premitive[][] = [];
         let found = false;
@@ -35,7 +35,8 @@ export class DeleteExecuter extends Executer {
         if (!found) 
             throw new Error(`object with id ${id} does not exist`); 
         await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.table_name, page_number), buffer);
-        await this._analyzer.increment_row_count_async(statement.table_name, -1);
+        --catalog.row_count;
+        await this._analyzer.update_relation_schema_async(catalog);
     }
 
     private async delete_all_async(statement: DeleteStatement):  Promise<number> {
@@ -44,7 +45,8 @@ export class DeleteExecuter extends Executer {
         await this._file_handler.delete_dirs_async([statement.table_name]);
         await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.table_name, 1), []);
         const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.table_name);
-        this._analyzer.increment_row_count_async(statement.table_name, -1 * catalog.row_count)
+        catalog.row_count = 0;
+        await this._analyzer.update_relation_schema_async(catalog);
         return catalog.row_count;
     }
 }

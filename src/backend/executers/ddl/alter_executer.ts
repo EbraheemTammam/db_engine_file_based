@@ -62,7 +62,8 @@ export class AlterExecuter extends Executer {
                 ]
             ]
         );
-        await this._analyzer.increment_column_count_async(statement.name);
+        ++catalog.column_count;
+        await this._analyzer.update_relation_schema_async(catalog);
         for (let page_number: number = 1; page_number <= catalog.page_count; ++page_number) {
             const buffer: premitive[][] = [];
             for await (const row of this._file_handler.stream_read_async(TABLE_PAGE_DATA_FILE(statement.name, page_number)))
@@ -72,18 +73,19 @@ export class AlterExecuter extends Executer {
     }
 
     private async drop_column(statement: AlterColumnStatement): Promise<void> {
+        const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.name);
         const buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
             if (row[0] === statement.name && row[1] === statement.column_name) continue;
             buffer.push(row);
         }
         await this._file_handler.write_async(ATTRIBUTE_SCHEMA_FILE, buffer);
-        await this._analyzer.increment_column_count_async(statement.name, -1);
-        const page_count: number = (await this._analyzer.get_relation_catalog_async(statement.name)).page_count;
+        --catalog.column_count;
+        await this._analyzer.update_relation_schema_async(catalog);
         const column_index: number = (
             await this._analyzer.get_attributes_catalogs_async(statement.name, [statement.column_name])
         )[0].index;
-        for (let page_number: number = 1; page_number <= page_count; ++page_number) {
+        for (let page_number: number = 1; page_number <= catalog.page_count; ++page_number) {
             const buffer: premitive[][] = [];
             for await (const row of this._file_handler.stream_read_async(TABLE_PAGE_DATA_FILE(statement.name, page_number)))
                 buffer.push([...row.slice(0, column_index), ...row.slice(column_index + 1)]);

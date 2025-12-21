@@ -142,34 +142,16 @@ export class Analyzer {
         return res;
     }
 
-    public async increment_column_count_async(table_name: string, increment_by: number = 1): Promise<void> {
+    public async update_relation_schema_async(catalog: RelationCatalog): Promise<void> {
         let buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(
             RELATION_SCHEMA_FILE, RELATION_CATALOG_DATATYPES
         )) {
-            const relation: RelationCatalog = this.deserialize_relation(row);
-            if (relation.name !== table_name) {
+            if (row[0] !== catalog.name) {
                 buffer.push(row);
                 continue;
             }
-            relation.column_count += increment_by;
-            buffer.push(this.serialize_relation(relation));
-        }
-        this._file_handler.write_async(RELATION_SCHEMA_FILE, buffer);
-    }
-
-    public async increment_row_count_async(table_name: string, increment_by: number = 1): Promise<void> {
-        let buffer: premitive[][] = [];
-        for await (const row of this._file_handler.stream_read_async(
-            RELATION_SCHEMA_FILE, RELATION_CATALOG_DATATYPES
-        )) {
-            const relation: RelationCatalog = this.deserialize_relation(row);
-            if (relation.name !== table_name) {
-                buffer.push(row);
-                continue;
-            }
-            relation.row_count += increment_by;
-            buffer.push(this.serialize_relation(relation));
+            buffer.push(this.serialize_relation(catalog));
         }
         this._file_handler.write_async(RELATION_SCHEMA_FILE, buffer);
     }
