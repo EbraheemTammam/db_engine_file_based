@@ -173,7 +173,7 @@ export class Analyzer {
     }
 
     public get_page_number(object_id: number) {
-        return Math.ceil(object_id / Analyzer.PAGE_SIZE)
+        return Math.ceil(object_id / Analyzer.PAGE_SIZE);
     }
 
     public serialize_relation(relation: RelationCatalog): premitive[] {
