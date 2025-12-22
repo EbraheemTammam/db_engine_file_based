@@ -75,7 +75,7 @@ export class SelectExecuter extends Executer {
                     if (
                         statement.limit !== undefined && 
                         buffer.length === statement.limit &&
-                        statement.ordering === undefined 
+                        statement.ordering?.length === 0
                     ) {
                         hit_limit = true;
                         break;
