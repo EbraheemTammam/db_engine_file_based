@@ -63,7 +63,7 @@ export class SelectStatementParser extends Parser {
                     let order: Token = this.consume(TokenType.IDENTIFIER);
                     this.validate_token_datatype(order);
                     statement.ordering?.push(order.value as string);
-                    while (this.peek().type === TokenType.COMMA) {
+                    while (!this.is_eof() && this.peek().type === TokenType.COMMA) {
                         this.consume(TokenType.COMMA);
                         order = this.consume(TokenType.IDENTIFIER);
                         this.validate_token_datatype(order);
