@@ -25,7 +25,7 @@ export class InsertExecuter extends Executer {
             if (attr.type === "SERIAL") continue;
             throw new Error(`column ${attr.name} can not be null`);
         }
-        // get the catalogs and indexes for provided attributes
+        // validating nullability of columns
         const attrs_catalogs: AttributeCatalog[] = (
             statement.columns === undefined ?
             await this._analyzer.get_table_attributes_catalogs_async(statement.table) :
