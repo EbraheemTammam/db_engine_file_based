@@ -61,6 +61,6 @@ export class UpdateExecuter extends Executer {
             // write the constructed buffer to the current page
             await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.table, page_number), buffer);
         }
-        return { type: "COMMAND", tag: "UPDATE", row_count: count }
+        return { type: "COMMAND", tag: "UPDATE", row_count: count };
     }
 }
