@@ -16,8 +16,6 @@ export class AlterExecuter extends Executer {
     public override async execute_async(statement: AlterColumnStatement): Promise<ExecutionResult> {
         if (!await this._analyzer.check_table_existance_async(statement.name))
             throw new Error(`table ${statement.name} does not exist`);
-        if (await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
-            throw new Error(`column ${statement.name} already exists`);
         switch (this._action) {
             case 'Add':
                 await this.add_column_async(statement);
@@ -42,6 +40,8 @@ export class AlterExecuter extends Executer {
     }
 
     private async add_column_async(statement: AlterColumnStatement): Promise<void> {
+        if (await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
+            throw new Error(`column ${statement.column_name} already exists at relation ${statement.name}`);
         const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.name);
         if (catalog.row_count > 0 && statement.constraints?.not_null && (statement.constraints.default === undefined))
             throw new Error('column must be nullable or have a default value');
@@ -73,6 +73,8 @@ export class AlterExecuter extends Executer {
     }
 
     private async drop_column_async(statement: AlterColumnStatement): Promise<void> {
+        if (!await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
+            throw new Error(`column ${statement.column_name} does not exist at relation ${statement.name}`);
         const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.name);
         const buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
@@ -94,8 +96,10 @@ export class AlterExecuter extends Executer {
     }
 
     private async rename_column_async(statement: AlterColumnStatement): Promise<void> {
+        if (!await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
+            throw new Error(`column ${statement.column_name} does not exists at relation ${statement.name}`);
         if (await this._analyzer.check_column_existance_async(statement.name, statement.new_name!))
-            throw new Error(`column ${statement.name} already exists`);
+            throw new Error(`column ${statement.new_name} already exists at relation ${statement.name}`);
         const buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
             if (row[0] === statement.name && row[1] === statement.column_name) {
@@ -114,6 +118,8 @@ export class AlterExecuter extends Executer {
     }
 
     private async alter_column_default_value_async(statement: AlterColumnStatement): Promise<void> {
+        if (!await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
+            throw new Error(`column ${statement.column_name} does not exist at relation ${statement.name}`);
         const buffer: premitive[][] = [];
         for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
             if (row[0] === statement.name && row[1] === statement.column_name) {
