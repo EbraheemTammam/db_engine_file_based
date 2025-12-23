@@ -52,7 +52,7 @@ export class FileHandler implements IFileHandler {
             await rm(path, { recursive: true, force: true });
     }
 
-    public async rename_dir(old_name, new_name): Promise<void> {
+    public async rename_dir(old_name: string, new_name: string): Promise<void> {
         try {
             await rename(old_name, new_name);
         } 
@@ -63,6 +63,10 @@ export class FileHandler implements IFileHandler {
             } 
             else throw e;
         }
+    }
+
+    public async make_dir(name: string): Promise<void> {
+        await mkdir(name, { recursive: true });
     }
     
     private async is_file_exists_async(path: string): Promise<boolean> {

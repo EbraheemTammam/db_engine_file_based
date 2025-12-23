@@ -5,5 +5,6 @@ export interface IFileHandler {
     write_async(path: string, data: premitive[][]): Promise<boolean>;
     append_async(path: string, data: premitive[][]): Promise<boolean>;
     delete_dirs_async(paths: string[]): Promise<void>;
-    rename_dir(old_name, new_name): Promise<void>;
+    make_dir(name: string): Promise<void>;
+    rename_dir(old_name: string, new_name: string): Promise<void>;
 }
