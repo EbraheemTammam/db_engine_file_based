@@ -8,17 +8,10 @@ import { ASTNode } from 'src/interfaces/ast';
 import { IExecuter } from 'src/interfaces/executer';
 import { ExecutionResult } from 'src/interfaces/execution_result';
 import { Token, TokenType } from 'src/interfaces/token';
-import { token_array_split } from 'src/utils/token_array_split';
 
 @Injectable()
 export class CoreService {
-    public async execute_async(buffer: string, type: "DDL" | "DML" = "DDL") {
-        let lexemes: Array<Token> = this.lex(buffer).filter(token => token.type !== TokenType.COMMENT);
-        let ASTs: ASTNode[] = type === "DDL" ? this.parse_ddl(lexemes) : this.parse_dml(lexemes);
-        return type === "DDL" ? await this.execute_ddl_async(ASTs) : await this.execute_dml_async(ASTs);
-    }
-
-    private async execute_ddl_async(nodes: ASTNode[]) : Promise<ExecutionResult[]> {
+    public async execute_ddl_async(nodes: ASTNode[]) : Promise<ExecutionResult[]> {
         let results: ExecutionResult[] = [];
         for (const n of nodes) {
             const executer: IExecuter = new DDLExecutionFactory(n).build();
@@ -27,7 +20,7 @@ export class CoreService {
         return results;
     }
 
-    private async execute_dml_async(nodes: ASTNode[]) : Promise<ExecutionResult[]> {
+    public async execute_dml_async(nodes: ASTNode[]) : Promise<ExecutionResult[]> {
         let results: ExecutionResult[] = [];
         for (const n of nodes) {
             const executer: IExecuter = new DMLExecutionFactory(n).build();
@@ -36,28 +29,26 @@ export class CoreService {
         return results;
     }
 
-    private lex(buffer: string) : Token[] {
+    public lex(buffer: string) : Token[] {
         let lexer: Lexer = new Lexer(buffer);
         return lexer.tokenize();
     }
 
-    private parse_ddl(lexemes: Token[]) : ASTNode[] {
-        let splitted_lexemes: Array<Array<Token>> = token_array_split(lexemes, { type: TokenType.SEMICOLON });
-        if (splitted_lexemes[splitted_lexemes.length - 1][0].type === TokenType.EOF)
-            splitted_lexemes = splitted_lexemes.slice(0, splitted_lexemes.length - 1)
+    public parse_ddl(lexemes: Token[][]) : ASTNode[] {
+        if (lexemes[lexemes.length - 1][0].type === TokenType.EOF)
+            lexemes = lexemes.slice(0, lexemes.length - 1)
         let ASTs: Array<ASTNode> = new Array<ASTNode>();
-        splitted_lexemes.forEach(
+        lexemes.forEach(
             element => ASTs.push((new DDLParserFactory(element)).build().parse()
         ));
         return ASTs;
     }
 
-    private parse_dml(lexemes: Token[]) : ASTNode[] {
-        let splitted_lexemes: Array<Array<Token>> = token_array_split(lexemes, { type: TokenType.SEMICOLON });
-        if (splitted_lexemes[splitted_lexemes.length - 1][0].type === TokenType.EOF)
-            splitted_lexemes = splitted_lexemes.slice(0, splitted_lexemes.length - 1)
+    public parse_dml(lexemes: Token[][]) : ASTNode[] {
+        if (lexemes[lexemes.length - 1][0].type === TokenType.EOF)
+            lexemes = lexemes.slice(0, lexemes.length - 1)
         let ASTs: Array<ASTNode> = new Array<ASTNode>();
-        splitted_lexemes.forEach(
+        lexemes.forEach(
             element => ASTs.push((new DMLParserFactory(element)).build().parse()
         ));
         return ASTs;

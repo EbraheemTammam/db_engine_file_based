@@ -1,6 +1,10 @@
 import { Body, Controller, Post} from '@nestjs/common';
 import { CoreService } from './core.service';
 import { isInstance } from 'class-validator';
+import { ExecutionResult } from 'src/interfaces/execution_result';
+import { Token, TokenType } from 'src/interfaces/token';
+import { token_array_split } from 'src/utils/token_array_split';
+import { ASTNode } from 'src/interfaces/ast';
 
 @Controller('execute')
 export class CoreController {
@@ -13,7 +17,13 @@ export class CoreController {
     @Post('ddl')
     async execute_ddl(@Body() buffer: string) {
         try {
-            return await this._service.execute_async(buffer);
+            const lexemes: Token[][] = token_array_split(
+                this._service.lex(buffer).filter(token => token.type !== TokenType.COMMENT),
+                { type: TokenType.SEMICOLON }
+            );
+            const ASTs: ASTNode[] = this._service.parse_ddl(lexemes);
+            const results: ExecutionResult[] = await this._service.execute_ddl_async(ASTs);
+            return results;
         }
         catch (e) {
             let now: Date = new Date();
@@ -32,7 +42,13 @@ export class CoreController {
     @Post('dml')
     async execute_dml(@Body() buffer: string) {
         try {
-            return await this._service.execute_async(buffer, "DML");
+            const lexemes: Token[][] = token_array_split(
+                this._service.lex(buffer).filter(token => token.type !== TokenType.COMMENT),
+                { type: TokenType.SEMICOLON }
+            );
+            const ASTs: ASTNode[] = this._service.parse_dml(lexemes);
+            const results: ExecutionResult[] = await this._service.execute_dml_async(ASTs);
+            return results;
         }
         catch (e) {
             let now: Date = new Date();
