@@ -51,8 +51,8 @@ export class AlterExecuter extends Executer {
                 [
                     statement.name, 
                     statement.column_name,
-                    statement.data_type!,
                     catalog.column_count,
+                    statement.data_type!,
                     statement.constraints?.not_null || false,
                     statement.constraints?.unique || false,
                     statement.constraints?.default || null,
@@ -73,17 +73,11 @@ export class AlterExecuter extends Executer {
     }
 
     private async drop_column_async(statement: AlterColumnStatement): Promise<void> {
+        // check column existance
         if (!await this._analyzer.check_column_existance_async(statement.name, statement.column_name))
             throw new Error(`column ${statement.column_name} does not exist at relation ${statement.name}`);
+        // rewriting pages with provided column removed
         const catalog: RelationCatalog = await this._analyzer.get_relation_catalog_async(statement.name);
-        const buffer: premitive[][] = [];
-        for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
-            if (row[0] === statement.name && row[1] === statement.column_name) continue;
-            buffer.push(row);
-        }
-        await this._file_handler.write_async(ATTRIBUTE_SCHEMA_FILE, buffer);
-        --catalog.column_count;
-        await this._analyzer.update_relation_schema_async(catalog);
         const column_index: number = (
             await this._analyzer.get_attributes_catalogs_async(statement.name, [statement.column_name])
         )[0].index;
@@ -93,6 +87,16 @@ export class AlterExecuter extends Executer {
                 buffer.push([...row.slice(0, column_index), ...row.slice(column_index + 1)]);
             await this._file_handler.write_async(TABLE_PAGE_DATA_FILE(statement.name, page_number), buffer);
         }
+        // remove column from attributes data
+        const buffer: premitive[][] = [];
+        for await (const row of this._file_handler.stream_read_async(ATTRIBUTE_SCHEMA_FILE, ATTRIBUTE_CATALOG_DATATYPES)) {
+            if (row[0] === statement.name && row[1] === statement.column_name) continue;
+            buffer.push(row);
+        }
+        await this._file_handler.write_async(ATTRIBUTE_SCHEMA_FILE, buffer);
+        // decrement column count in relation schema
+        --catalog.column_count;
+        await this._analyzer.update_relation_schema_async(catalog);
     }
 
     private async rename_column_async(statement: AlterColumnStatement): Promise<void> {
