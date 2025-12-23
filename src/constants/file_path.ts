@@ -9,3 +9,5 @@ export const TABLE_DIR = (table_name: string): string =>
     `database/data/${table_name}`;
 export const TABLE_PAGE_DATA_FILE = (table_name: string, page_number: number): string => 
     `database/data/${table_name}/page_${page_number}.csv`;
+export const DAY_LOGS_FILE = (day: string) =>
+    `database/logs/${day}.csv`;

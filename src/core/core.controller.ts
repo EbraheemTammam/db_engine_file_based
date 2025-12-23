@@ -23,18 +23,18 @@ export class CoreController {
             );
             const ASTs: ASTNode[] = this._service.parse_ddl(lexemes);
             const results: ExecutionResult[] = await this._service.execute_ddl_async(ASTs);
+            await this._service.log_queries(lexemes);
             return results;
         }
         catch (e) {
-            let now: Date = new Date();
+            const now: Date = new Date();
             let error_with_location: string = e.stack.split('\n')[1].trim();
             error_with_location = (
                 error_with_location.slice(0, error_with_location.indexOf('(')) +
                 error_with_location.slice(error_with_location.indexOf(')') + 1, error_with_location.indexOf(')')) 
             );
-            let syntax_error: boolean = isInstance(e, SyntaxError);
-            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${syntax_error ? 'SyntaxError: ' : ''}${e.message}`);
-            console.error(`\t\t\t\t${error_with_location}\x1b[0m`);
+            const syntax_error: boolean = isInstance(e, SyntaxError);
+            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${syntax_error ? 'SyntaxError: ' : ''}${e.message} ${error_with_location}\x1b[0m`);
             return {'error': e.message}
         }
     }
@@ -48,18 +48,18 @@ export class CoreController {
             );
             const ASTs: ASTNode[] = this._service.parse_dml(lexemes);
             const results: ExecutionResult[] = await this._service.execute_dml_async(ASTs);
+            await this._service.log_queries(lexemes);
             return results;
         }
         catch (e) {
-            let now: Date = new Date();
+            const now: Date = new Date();
             let error_with_location: string = e.stack.split('\n')[1].trim();
             error_with_location = (
                 error_with_location.slice(0, error_with_location.indexOf('(')) +
                 error_with_location.slice(error_with_location.indexOf(')') + 1, error_with_location.indexOf(')')) 
             );
-            let syntax_error: boolean = isInstance(e, SyntaxError);
-            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${syntax_error ? 'SyntaxError: ' : ''}${e.message}`);
-            console.error(`\t\t\t\t${error_with_location}\x1b[0m`);
+            const syntax_error: boolean = isInstance(e, SyntaxError);
+            console.error(`\x1b[31m[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] [ERROR] ${syntax_error ? 'SyntaxError: ' : ''}${e.message} ${error_with_location}\x1b[0m`);
             return {'error': e.message}
         }
     }
