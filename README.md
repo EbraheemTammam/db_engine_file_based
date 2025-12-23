@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users(
 TRUNCATE TABLE users;
 ALTER TABLE users ADD column age INT NOT NULL;
 ALTER TABLE users DROP column age;
-ALTER TABLE users rename TO accounts;
+ALTER TABLE users RENAME TO accounts;
 DROP TABLE accounts;
 ```
 
